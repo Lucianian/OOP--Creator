@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 
 #include "Teacher.h"
@@ -11,9 +11,6 @@ class Creator
 {
 
 public:
-    Creator( /*char num, const string& text, bool isCorrect*/ ) : /*option(option), text(text), isCorrect(isCorrect)*/ {}
-
-
 
     void StartInterface() 
     {
@@ -49,17 +46,13 @@ public:
 
         default: 
             // Error
-            cout << "Enter write command";
+            cout << "Enter right command";
             StartInterface();
             break;
         }
     }
 
-    void TeacherInterphase(Teacher* ptr) {}
-
-    void StudentInterphase(Student* ptr) {}
-
-    void CreateTeacher() 
+    void CreateTeacher()
     {
         cout << "Enter teacher's name";
         cin >> name;
@@ -67,10 +60,11 @@ public:
         cin >> password;
 
         Teachers[numTeachers] = new Teacher(name, password);
+        numTeachers += 1;
         StartInterface();
     }
 
-    void CreateStudent() 
+    void CreateStudent()
     {
         cout << "Enter student's name";
         cin >> name;
@@ -78,6 +72,7 @@ public:
         cin >> password;
 
         Students[numStudents] = new Student(name, password);
+        numStudents += 1;
         StartInterface();
     }
 
@@ -85,9 +80,9 @@ public:
     {
         cout << "Enter teacher's name";
         cin >> name;
-        for (int i = 0; i < numTeachers; i++) 
+        for (int i = 0; i < numTeachers && Teachers[i] != nullptr; i++)
         {
-            if (name == Teachers[i]->name) 
+            if (name == Teachers[i]->name)
             {
                 cout << "Enter teacher's password";
                 cin >> password;
@@ -102,11 +97,11 @@ public:
         StartInterface();
     }
 
-    void LogInStudent() 
+    void LogInStudent()
     {
         cout << "Enter student's name";
         cin >> name;
-        for (int i = 0; i < numStudents; i++)
+        for (int i = 0; i < numStudents && Teachers[i] != nullptr; i++)
         {
             if (name == Students[i]->name)
             {
@@ -123,9 +118,241 @@ public:
         StartInterface();
     }
 
+    //-----------------------------------
 
-    
+    void TeacherInterphase(Teacher* ptr) 
+    {
+        cout << "...";
+        cin >> answer;
 
+        switch (answer)
+        {
+        case 1:
+            // Teacher's Data
+            ptr->showData();
+            break;
+
+        case 2:
+            // Create test
+            CreateTest();
+            break;
+
+        case 3:
+            // Choose test
+
+            cout << "Enter test's name";
+            cin >> name;
+            for (int i = 0; i < numTests && Tests[i] != nullptr; i++)
+            {
+                if (name == Tests[i]->name)
+                {
+                    TestInterphase(Tests[i]);
+                    return;
+                }
+            }
+            cout << "Such test doesn't exist yet.";
+            TeacherInterphase(ptr);
+
+            break;
+
+        case 4:
+            // Show statistics
+            ptr->ShowTeacherStat();
+            break;
+
+        case 5:
+            // Delete account
+            delete ptr;
+
+            int replacer;
+            for (int i = 0; Teachers[i] != nullptr; i++) { replacer  = i+1 }
+            for (int i = replacer; i <= numTeachers; i++) { Teachers[i] = Teachers[i+1] }
+
+            numTeachers -= 1;
+            break;
+
+        case 6:
+            // Exit
+            StartInterface();
+            break;
+
+        default:
+            // Error
+            cout << "Enter right command";
+            TeacherInterphase(ptr);
+            break;
+        }
+    }
+
+    void CreateTest()
+    {
+        cout << "Enter test's name";
+        cin >> name;
+
+        Tests[numTests] = new Test(name);
+        numTests += 1;
+        TeacherInterphase();
+    }
+
+    void TestInterphase(Test* ptr) 
+    {
+        cout << "...";
+        cin >> answer;
+
+        switch (answer)
+        {
+        case 1:
+            // Test Data
+            ptr->showData();
+            break;
+
+        case 2:
+            // Choose question
+
+            cout << "Enter question's number";
+            cin >> number;
+            for (int i = 0; i < ptr->numQuestions && ptr->Question[i] != nullptr; i++)
+            {
+                if (number == ptr->Question[i]->number)
+                {
+                    QuestionInterphase(ptr->Question[i], ptr);
+                    return;
+                }
+            }
+            cout << "Such question doesn't exist yet.";
+            TestInterphase(ptr);
+
+            break;
+
+        case 3:
+            // Delete
+            delete ptr;
+
+            Test* replacer;
+            for (int i = 0; Tests[i] != nullptr; i++) { replacer = i + 1 }
+            for (int i = replacer; i <= numTests; i++) { Tests[i] = Tests[i + 1] }
+
+            numTests -= 1;
+            break;
+
+        default:
+            // Error
+            cout << "Enter right command";
+            TestInterphase(ptr);
+            break;
+        }
+    }
+
+    void QuestionInterphase(Question* ptr, Test* test) 
+    {
+        cout << "...";
+        cin >> answer;
+
+        switch (answer)
+        {
+        case 1:
+            // Question Data
+            ptr->showData();
+            break;
+
+        case 2:
+            // Change answer
+
+            cout << "Enter answer's number";
+            cin >> number;
+            for (int i = 0; i < ptr->numAnswers && ptr->Answer[i] != nullptr; i++)
+            {
+                if (number == ptr->Answers[i]->number)
+                {
+                    ptr->Answers[i]->Reduct();
+                    return;
+                }
+            }
+            cout << "Such answer doesn't exist yet.";
+            QuestionInterphase(ptr);
+
+            break;
+
+        case 3:
+            // Delete
+            delete ptr;
+
+            Question* replacer;
+            for (int i = 0; test->Questions[i] != nullptr; i++) { replacer = i + 1 }
+            for (int i = replacer; i <= test->numQuestions; i++) { test->Questions[i] = test->Questions[i + 1] }
+
+            test->numQuestions -= 1;
+            break;
+
+        default:
+            // Error
+            cout << "Enter right command";
+            QuestionInterphase(ptr, test);
+            break;
+        }
+        
+    }
+
+    //-----------------------------------
+
+    void StudentInterphase(Student* ptr) 
+    {
+        cout << "...";
+        cin >> answer;
+
+        switch (answer)
+        {
+        case 1:
+            // Student's Data
+            ptr->showData();
+            break;
+
+        case 2:
+            // Pass the test
+
+            cout << "Enter test's name";
+            cin >> name;
+            for (int i = 0; i < numTests && Tests[i] != nullptr; i++)
+            {
+                if (name == Tests[i]->name)
+                {
+                    Tests[i]->TestPass();
+                    return;
+                }
+            }
+            cout << "Such test doesn't exist yet.";
+            StudentInterphase(ptr);
+            break;
+
+        case 4:
+            // Show statistics
+            ptr->ShowStudentStat();
+            break;
+
+        case 5:
+            // Delete account
+            delete ptr;
+
+            Student* replacer;
+            for (int i = 0; Students[i] != nullptr; i++) { replacer = i + 1 }
+            for (int i = replacer; i <= numStudents; i++) { Students[i] = Students[i + 1] }
+
+            numStudents -= 1;
+            break;
+
+        case 6:
+            // Exit
+            StartInterface();
+            break;
+
+        default:
+            // Error
+            cout << "Enter right command";
+            StudentInterphase(ptr);
+            break;
+        }
+        
+    }
 
 private:
 
@@ -136,12 +363,7 @@ private:
     int answer;
     string name, password;
 
-    int numTeachers = 0;
-    int numStudents = 0;
-
-    void CreateAccount() {}
-    void logIn() {}
-    void 
+    int numTeachers = 0, numStudents = 0, numTests = 0;
 
 };
 
@@ -150,201 +372,7 @@ private:
 
 int main()
 {
-    bool run = 1;
-
-    while (run) 
-    {
-
-    }
+    Creator Testing;
+    Testing->StartInterface();
+    return 0;
 }
-
-
-
-
-
-/*
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <memory>
-
-using namespace std;
-
-class Answer
-{
-public:
-    Answer(char option, const string& text, bool isCorrect) : option(option), text(text), isCorrect(isCorrect) {}
-
-    char getOption() const
-    {
-        return option;
-    }
-
-    const string& getText() const
-    {
-        return text;
-    }
-
-    bool isCorrectAnswer() const
-    {
-        return isCorrect;
-    }
-
-private:
-    char option;
-    string text;
-    bool isCorrect;
-};
-
-class Pair
-{
-public:
-    Pair(char leftOption, const string& left, char rightOption, const string& right) : leftOption(leftOption), left(left), rightOption(rightOption), right(right) {}
-
-    char getLeftOption() const
-    {
-        return leftOption;
-    }
-
-    const string& getLeft() const
-    {
-        return left;
-    }
-
-    char getRightOption() const
-    {
-        return rightOption;
-    }
-
-    const string& getRight() const
-    {
-        return right;
-    }
-
-private:
-    char leftOption;
-    string left;
-    char rightOption;
-    string right;
-};
-
-class Question
-{
-public:
-    Question(const string& questionText) : questionText(questionText) {}
-
-    const string& getQuestionText() const
-    {
-        return questionText;
-    }
-
-    virtual void addAnswer(char option, const string& text, bool isCorrect)
-    {
-        answers.push_back(Answer(option, text, isCorrect));
-    }
-
-    const vector<Answer>& getAnswers() const
-    {
-        return answers;
-    }
-
-    virtual void display() const
-    {
-        cout << "Question: " << getQuestionText() << endl;
-        cout << "Answers:" << endl;
-
-        for (const auto& answer : answers)
-        {
-            cout << "- " << answer.getOption() << ". " << answer.getText() << endl;
-        }
-    }
-
-    bool checkAnswer(char userAnswer) const
-    {
-        auto it = find_if(answers.begin(), answers.end(),
-            [userAnswer](const Answer& answer) { return answer.getOption() == userAnswer; });
-
-        return it != answers.end() && it->isCorrectAnswer();
-    }
-
-    virtual ~Question() {}
-
-private:
-    string questionText;
-    vector<Answer> answers;
-};
-
-class SingleChoiceQuestion : public Question
-{
-public:
-    using Question::Question;
-
-    void display() const override
-    {
-        Question::display();
-        cout << "Type: Single Choice" << endl;
-    }
-};
-
-class MultipleChoiceQuestion : public Question
-{
-public:
-    using Question::Question;
-
-    void display() const override
-    {
-        Question::display();
-        cout << "Type: Multiple Choice" << endl;
-    }
-};
-
-class MatchingQuestion : public Question
-{
-public:
-    using Question::Question;
-
-    void addPair(char leftOption, const string& left, char rightOption, const string& right)
-    {
-        pairs.push_back(Pair(leftOption, left, rightOption, right));
-    }
-
-    void display() const override
-    {
-        Question::display();
-        cout << "Type: Matching" << endl;
-        cout << "Pairs:" << endl;
-
-        for (const auto& pair : pairs)
-        {
-            cout << "- " << pair.getLeftOption() << ". " << pair.getLeft() << " <-> " << pair.getRightOption() << ". " << pair.getRight() << endl;
-        }
-    }
-
-    bool checkAnswer(char leftOption, char rightOption) const
-    {
-        auto it = find_if(pairs.begin(), pairs.end(),
-            [leftOption, rightOption](const auto& pair)
-            {
-                return pair.getLeftOption() == leftOption && pair.getRightOption() == rightOption;
-            });
-
-        return it != pairs.end();
-    }
-
-private:
-    vector<Pair> pairs;
-};
-
-class ChronologyQuestion : public Question
-{
-public:
-    using Question::Question;
-
-    void display() const override
-    {
-        Question::display();
-        cout << "Type: Chronology" << endl;
-    }
-};
-
